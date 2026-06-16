@@ -4,7 +4,7 @@
   "forward_prefetch": false,
   "use_orig_params": true,
   "sharding_strategy": "FULL_SHARD",
-  "state_dict_type": "SHARDED_STATE_DICT",
+  "state_dict_type": "FULL_STATE_DICT",
   "cpu_ram_efficient_loading": true,
   "sync_module_states": true
 }

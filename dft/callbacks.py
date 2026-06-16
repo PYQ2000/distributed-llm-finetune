@@ -18,6 +18,7 @@ class ThroughputMemoryCallback(TrainerCallback):
     def __init__(self, seq_len: int):
         self.seq_len = seq_len
         self._t0 = None
+        self._last_step = 0
 
     def on_step_begin(self, args, state, control, **kwargs):
         if self._t0 is None:
@@ -30,11 +31,14 @@ class ThroughputMemoryCallback(TrainerCallback):
 
         now = time.perf_counter()
         elapsed = now - self._t0
+        # 用真实优化步数差，而非假设固定 logging_steps 窗口
+        # （logging_first_step 会在 step 1 触发，否则首点会虚高）。
+        steps = max(1, state.global_step - self._last_step)
         world = max(1, getattr(args, "world_size", 1))
         num_samples = (args.per_device_train_batch_size
                        * args.gradient_accumulation_steps
                        * world
-                       * max(1, args.logging_steps))
+                       * steps)
         sps, tps = compute_throughput(num_samples, self.seq_len, elapsed)
         logs["throughput/samples_per_s"] = round(sps, 3)
         logs["throughput/tokens_per_s"] = round(tps, 1)
@@ -45,3 +49,4 @@ class ThroughputMemoryCallback(TrainerCallback):
                 torch.cuda.max_memory_reserved() / 1e9, 3)
             torch.cuda.reset_peak_memory_stats()
         self._t0 = now
+        self._last_step = state.global_step

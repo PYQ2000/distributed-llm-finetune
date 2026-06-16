@@ -69,19 +69,8 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    if args.smoke:
-        model = build_tiny_model(tokenizer)
-    else:
-        model = AutoModelForCausalLM.from_pretrained(
-            cfg.model_name, trust_remote_code=True)
-    if cfg.gradient_checkpointing:
-        model.gradient_checkpointing_enable()
-        model.config.use_cache = False
-
-    train_ds = load_sft_dataset(cfg, tokenizer)
-    collator = DataCollatorForSeq2Seq(
-        tokenizer, padding=True, label_pad_token_id=-100)
-
+    # 先构建 TrainingArguments，再 load 模型：这样 DeepSpeed ZeRO-3 的 zero.Init
+    # 才能在 from_pretrained 期间生效，避免每个 rank 先在内存里实体化整个模型。
     extra = {}
     if args.deepspeed:
         extra["deepspeed"] = args.deepspeed
@@ -116,6 +105,19 @@ def main():
         ddp_find_unused_parameters=False,
         **extra,
     )
+
+    if args.smoke:
+        model = build_tiny_model(tokenizer)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            cfg.model_name, trust_remote_code=True)
+    if cfg.gradient_checkpointing:
+        model.gradient_checkpointing_enable()
+        model.config.use_cache = False
+
+    train_ds = load_sft_dataset(cfg, tokenizer)
+    collator = DataCollatorForSeq2Seq(
+        tokenizer, padding=True, label_pad_token_id=-100)
 
     trainer = Trainer(
         model=model, args=targs, train_dataset=train_ds,
