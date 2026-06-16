@@ -27,6 +27,8 @@ monitoring/grafana-data/
 *.log
 
 # 隐私：任何简历/个人文件都不许进公开仓库
+# 注意只挡简历「文档」，别误伤 scripts/resume_demo.sh 这类合法脚本
 *简历*
-*resume*
+*resume*.pdf
+*resume*.doc*
 *.pdf
