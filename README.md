@@ -43,7 +43,7 @@ Weights & Biases · 数据集 `alpaca-zh` · *(二期)* Prometheus + DCGM-export
 ## 路线图
 
 - [x] **Phase 0** 仓库脚手架
-- [ ] **Phase 1** 单卡基线 + 双卡 DDP（W&B 公开曲线）
+- [x] **Phase 1** 训练 harness 代码就绪（单卡 / DDP / ZeRO / FSDP 一份脚本切换）；Kaggle 实验与 W&B 曲线回填中
 - [ ] **Phase 2** ZeRO vs FSDP 吞吐 / 显存对比
 - [ ] **Phase 3** 1.5B 单卡 OOM → 双卡 ZeRO-3 救场 *(核心卖点)*
 - [ ] **Phase 4** 断点续传容错演示
@@ -51,7 +51,7 @@ Weights & Biases · 数据集 `alpaca-zh` · *(二期)* Prometheus + DCGM-export
 - [ ] **Phase 6** *(autodl)* Prometheus + DCGM-exporter + Grafana 监控看板
 - [ ] **Phase 7** *(可选)* K8s + Volcano 提交训练 Job
 
-> 运行方式（Kaggle T4×2 一键复现 + W&B 公开看板链接）将在 Phase 1 落地后补全。
+> Kaggle T4×2 复现步骤见 [`notebooks/kaggle_run_guide.md`](notebooks/kaggle_run_guide.md)；W&B 公开看板链接待实验跑出后回填。
 
 ## 参考与致谢
 
