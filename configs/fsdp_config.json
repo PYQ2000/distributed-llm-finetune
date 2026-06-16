@@ -1,0 +1,10 @@
+{
+  "transformer_layer_cls_to_wrap": ["Qwen2DecoderLayer"],
+  "backward_prefetch": "backward_pre",
+  "forward_prefetch": false,
+  "use_orig_params": true,
+  "sharding_strategy": "FULL_SHARD",
+  "state_dict_type": "SHARDED_STATE_DICT",
+  "cpu_ram_efficient_loading": true,
+  "sync_module_states": true
+}
