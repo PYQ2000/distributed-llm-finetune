@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
+
+# ML artifacts (大文件不进仓库)
+wandb/
+checkpoints/
+outputs/
+runs/
+*.ckpt
+*.safetensors
+*.bin
+data/raw/
+data/cache/
+models/
+
+# 监控运行时数据
+monitoring/prometheus-data/
+monitoring/grafana-data/
+
+# 系统
+.DS_Store
+*.log
+
+# 隐私：任何简历/个人文件都不许进公开仓库
+*简历*
+*resume*
+*.pdf
