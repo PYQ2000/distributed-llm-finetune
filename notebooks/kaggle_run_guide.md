@@ -43,12 +43,20 @@ os.environ["WANDB_API_KEY"] = UserSecretsClient().get_secret("WANDB_API_KEY")
 ```
 
 ## 3. 断点续传（E7）
+> E7 是唯一需要「存 checkpoint」的实验，所以要显式 `--save_strategy steps`。
 ```bash
-# 后台监控显存（另起一个 cell 或 &）
-!python scripts/monitor_gpu.py --out results/gpu_log.csv --interval 2 &
-# 跑 E2 配置，中途手动 Interrupt/kill；再续训：
+# 先跑一版会存档的训练，中途手动 Interrupt/kill（停在 step 50 之后）：
+!bash scripts/run.sh --config configs/base.yaml --run_name e7-resume \
+    --output_dir outputs/e7-resume --save_strategy steps
+# 看 outputs/e7-resume 下存了哪个 checkpoint，再从它续训：
 !bash scripts/resume_demo.sh outputs/e7-resume/checkpoint-50
-# 画 GPU 曲线
+```
+> 看点：续训后 loss 从中断处无缝接上、step 连续。截续训前后的 loss 图。
+
+## 3b.（可选）训练期 GPU 监控（P5）
+```bash
+# 另起一个 cell，训练时并行采样；跑一会儿后 Interrupt 停止，再画图
+!python scripts/monitor_gpu.py --out results/gpu_log.csv --interval 2 --duration 120
 !python scripts/plot_gpu_log.py --csv results/gpu_log.csv --out results/figures/gpu_util_mem.png
 ```
 

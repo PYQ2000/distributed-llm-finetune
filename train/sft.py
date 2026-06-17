@@ -46,7 +46,7 @@ def parse_args():
     ap.add_argument("--deepspeed", default=None, help="DeepSpeed json 路径")
     ap.add_argument("--fsdp", default=None, help='如 "full_shard auto_wrap"')
     ap.add_argument("--fsdp_config", default=None, help="FSDP json 路径")
-    for k in ["model_name", "output_dir", "run_name"]:
+    for k in ["model_name", "output_dir", "run_name", "save_strategy"]:
         ap.add_argument(f"--{k}", default=None)
     ap.add_argument("--max_steps", type=int, default=None)
     ap.add_argument("--max_samples", type=int, default=None)
@@ -56,7 +56,8 @@ def parse_args():
 def main():
     args = parse_args()
     overrides = {k: getattr(args, k) for k in
-                 ["model_name", "output_dir", "run_name", "max_steps", "max_samples"]}
+                 ["model_name", "output_dir", "run_name", "save_strategy",
+                  "max_steps", "max_samples"]}
     cfg = TrainConfig.from_yaml(args.config, overrides)
     set_seed(cfg.seed)
 
@@ -64,6 +65,7 @@ def main():
         cfg.report_to = "none"
         cfg.max_samples = 16
         cfg.max_steps = 2
+        cfg.save_strategy = "steps"   # 冒烟时验证存盘路径
         cfg.save_steps = 2
         cfg.fp16 = False
         cfg.bf16 = False
@@ -99,7 +101,7 @@ def main():
         weight_decay=cfg.weight_decay,
         logging_steps=cfg.logging_steps,
         logging_first_step=True,
-        save_strategy="steps",
+        save_strategy=cfg.save_strategy,
         save_steps=cfg.save_steps,
         save_total_limit=cfg.save_total_limit,
         fp16=cfg.fp16,
@@ -130,8 +132,10 @@ def main():
         callbacks=[ThroughputMemoryCallback(cfg.max_seq_len)],
     )
     trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
-    trainer.save_model(cfg.output_dir)
-    tokenizer.save_pretrained(cfg.output_dir)
+    # 仅在显式开启保存时才存最终模型（吞吐/对比实验不存，省 Kaggle 磁盘）。
+    if cfg.save_strategy != "no":
+        trainer.save_model(cfg.output_dir)
+        tokenizer.save_pretrained(cfg.output_dir)
 
 
 if __name__ == "__main__":

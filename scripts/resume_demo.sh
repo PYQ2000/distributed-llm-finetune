@@ -6,4 +6,5 @@ cd "$(dirname "$0")/.."
 CKPT="${1:?用法: resume_demo.sh outputs/e7-resume/checkpoint-XX}"
 NPROC="${NPROC:-2}" torchrun --standalone --nproc_per_node="${NPROC:-2}" \
   train/sft.py --config configs/base.yaml --run_name e7-resume \
-  --output_dir outputs/e7-resume --resume_from_checkpoint "${CKPT}"
+  --output_dir outputs/e7-resume --save_strategy steps \
+  --resume_from_checkpoint "${CKPT}"

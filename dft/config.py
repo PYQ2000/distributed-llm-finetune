@@ -26,6 +26,7 @@ class TrainConfig:
     warmup_ratio: float = 0.03
     weight_decay: float = 0.0
     logging_steps: int = 5
+    save_strategy: str = "no"   # 默认不存(省盘)；E7 续传演示再 --save_strategy steps
     save_steps: int = 50
     save_total_limit: int = 2
     seed: int = 42
