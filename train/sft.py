@@ -7,6 +7,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # 仓库根可导入 dft
 
+# 减少显存碎片化导致的 OOM（必须在 import torch 之前设置才生效）
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
 import torch
 from transformers import (
     AutoModelForCausalLM,
@@ -78,6 +81,9 @@ def main():
         extra["fsdp"] = args.fsdp
     if args.fsdp_config:
         extra["fsdp_config"] = args.fsdp_config
+    if cfg.gradient_checkpointing:
+        # use_reentrant=False 更稳；交给 Trainer 统一 enable，避免重复开启
+        extra["gradient_checkpointing_kwargs"] = {"use_reentrant": False}
 
     if cfg.report_to == "wandb":
         os.environ.setdefault("WANDB_PROJECT", cfg.wandb_project)
@@ -111,9 +117,8 @@ def main():
     else:
         model = AutoModelForCausalLM.from_pretrained(
             cfg.model_name, trust_remote_code=True)
-    if cfg.gradient_checkpointing:
-        model.gradient_checkpointing_enable()
-        model.config.use_cache = False
+    # 梯度检查点由 TrainingArguments(gradient_checkpointing=...) 统一开启，
+    # Trainer 会自动处理 use_cache，无需手动 enable（避免重复开启）。
 
     train_ds = load_sft_dataset(cfg, tokenizer)
     collator = DataCollatorForSeq2Seq(
