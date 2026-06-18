@@ -8,7 +8,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # 仓库根可导入 dft
 
 # 减少显存碎片化导致的 OOM（必须在 import torch 之前设置才生效）
+# 新旧 torch 环境变量名不同，两个都设
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
 import torch
 from transformers import (
