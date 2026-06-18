@@ -2,7 +2,7 @@ model_name: Qwen/Qwen2.5-1.5B
 dataset_name: llamafactory/alpaca_gpt4_zh
 dataset_split: train
 max_samples: 3000
-max_seq_len: 1024
+max_seq_len: 512    # 1.5B 在 2×15G T4 上纯 ZeRO-3 分片，降序列给 GPU 留余量
 output_dir: outputs/run-1.5b   # E5/E6 复用本文件，跑时各自 --output_dir/--run_name 覆盖
 per_device_train_batch_size: 1
 gradient_accumulation_steps: 16
