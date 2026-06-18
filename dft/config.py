@@ -25,6 +25,7 @@ class TrainConfig:
     max_steps: int = -1
     warmup_ratio: float = 0.03
     weight_decay: float = 0.0
+    optim: str = "adamw_torch"   # 非 fused：避开 fused AdamW + FSDP 的已知 bug
     logging_steps: int = 5
     save_strategy: str = "no"   # 默认不存(省盘)；E7 续传演示再 --save_strategy steps
     save_steps: int = 50

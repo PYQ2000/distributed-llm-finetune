@@ -99,6 +99,7 @@ def main():
         max_steps=cfg.max_steps,
         warmup_ratio=cfg.warmup_ratio,
         weight_decay=cfg.weight_decay,
+        optim=cfg.optim,
         logging_steps=cfg.logging_steps,
         logging_first_step=True,
         save_strategy=cfg.save_strategy,
