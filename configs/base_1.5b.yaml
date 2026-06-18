@@ -18,7 +18,7 @@ save_total_limit: 2
 seed: 42
 fp16: true
 bf16: false
-gradient_checkpointing: false
+gradient_checkpointing: true   # E6 双卡 ZeRO-3 时给 GPU 留余量；E5 单卡仍会 OOM
 run_name: run-1.5b
 wandb_project: distributed-llm-finetune
 report_to: wandb
